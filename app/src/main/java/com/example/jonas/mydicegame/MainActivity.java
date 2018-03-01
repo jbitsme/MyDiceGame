@@ -1,6 +1,7 @@
 package com.example.jonas.mydicegame;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Handler;
@@ -13,9 +14,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.jonas.mydicegame.model.ILogicRoller;
 import com.example.jonas.mydicegame.model.LogicRoller;
+import com.example.jonas.mydicegame.model.ModelState;
+import com.example.jonas.mydicegame.model.RollBE;
+import com.example.jonas.mydicegame.model.ShakeDetector;
+import com.example.jonas.mydicegame.model.SwipeListener;
+
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     TextView procent;
 
     LinearLayout listHistory;
+    LinearLayout mainLayout;
 
     ILogicRoller logic;
 
@@ -40,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     boolean canRoll = true;
+
+    ModelState modelState = ModelState.getInstance();
 
 
     @Override
@@ -80,8 +93,21 @@ public class MainActivity extends AppCompatActivity {
         procent = findViewById(R.id.procent);
 
         listHistory = findViewById(R.id.listHistory);
+        mainLayout = findViewById(R.id.mainLayout);
 
         logic = new LogicRoller();
+
+        mainLayout.setOnTouchListener(new SwipeListener(MainActivity.this) {
+            public void onSwipeLeft() {
+                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                finish();
+            }
+        });
+
+        if (savedInstanceState != null)
+        {
+            numbRolls = savedInstanceState.getInt("numRolls");
+        }
 
     }
 
@@ -147,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
         setDice(roll2, image2);
         int sum = roll1 + roll2;
 
+        modelState.addRoll(new RollBE(roll1, roll2, LocalDateTime.now()));
+
         TextView newText = new TextView(this);
         newText.setText("Roll " + numbRolls + ": " + roll1 + " + " + roll2 + " = " + sum);
         listHistory.addView(newText);
@@ -187,5 +215,11 @@ public class MainActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    protected void onSaveInstance(Bundle state)
+    {
+        super.onSaveInstanceState(state);
+        state.putInt("numRolls", numbRolls);
     }
 }

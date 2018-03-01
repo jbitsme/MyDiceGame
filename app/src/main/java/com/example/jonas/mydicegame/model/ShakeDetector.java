@@ -1,4 +1,4 @@
-package com.example.jonas.mydicegame;
+package com.example.jonas.mydicegame.model;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
