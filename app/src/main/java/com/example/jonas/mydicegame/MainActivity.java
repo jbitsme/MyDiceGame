@@ -30,27 +30,21 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     Button btnRoll;
-    Button btnClear;
 
     ImageView image1;
     ImageView image2;
 
-    ProgressBar progressBar;
-    TextView procent;
-
-    LinearLayout listHistory;
     LinearLayout mainLayout;
 
     ILogicRoller logic;
-
-    int numbRolls = 0;
-
-    int historyLength = 10;
 
     private ShakeDetector mShakeDetector;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     boolean canRoll = true;
+
+    int roll1 = 6;
+    int roll2 = 6;
 
     ModelState modelState = ModelState.getInstance();
 
@@ -78,21 +72,10 @@ public class MainActivity extends AppCompatActivity {
                 clickRoll();
             }
         });
-        btnClear = findViewById(R.id.btnClear);
-        btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clickClear();
-            }
-        });
 
         image1 = findViewById(R.id.image1);
         image2 = findViewById(R.id.image2);
 
-        progressBar = findViewById(R.id.progressBar);
-        procent = findViewById(R.id.procent);
-
-        listHistory = findViewById(R.id.listHistory);
         mainLayout = findViewById(R.id.mainLayout);
 
         logic = new LogicRoller();
@@ -106,7 +89,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null)
         {
-            numbRolls = savedInstanceState.getInt("numRolls");
+            this.roll1 = savedInstanceState.getInt("roll1");
+            setDice(roll1, image1);
+            this.roll2 = savedInstanceState.getInt("roll2");
+            setDice(roll2, image2);
         }
 
     }
@@ -160,36 +146,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void roll(int one, int two)
     {
-        if (numbRolls == historyLength) {
-            numbRolls = 0;
-            listHistory.removeAllViewsInLayout();
-            clickRoll();
-        }
-
-        numbRolls++;
-        int roll1 = logic.doRoll();
+        this.roll1 = logic.doRoll();
         setDice(roll1, image1);
-        int roll2 = logic.doRoll();
+        this.roll2 = logic.doRoll();
         setDice(roll2, image2);
         int sum = roll1 + roll2;
 
         modelState.addRoll(new RollBE(roll1, roll2, LocalDateTime.now()));
 
         TextView newText = new TextView(this);
-        newText.setText("Roll " + numbRolls + ": " + roll1 + " + " + roll2 + " = " + sum);
-        listHistory.addView(newText);
 
-        int progress = (100/historyLength)*numbRolls;
-        progressBar.setProgress(progress);
-        procent.setText(progress+"/100");
 
-    }
-
-    private void clickClear() {
-        numbRolls = 0;
-        listHistory.removeAllViewsInLayout();
-        progressBar.setProgress(0);
-        procent.setText("0/100");
     }
 
     public void setDice(int number, ImageView view) {
@@ -217,9 +184,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void onSaveInstance(Bundle state)
+    protected void onSaveInstanceState(Bundle state)
     {
         super.onSaveInstanceState(state);
-        state.putInt("numRolls", numbRolls);
+        state.putInt("roll1", this.roll1);
+        state.putInt("roll2", this.roll2);
     }
 }
