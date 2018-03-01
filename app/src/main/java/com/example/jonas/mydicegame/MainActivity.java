@@ -150,11 +150,8 @@ public class MainActivity extends AppCompatActivity {
         setDice(roll1, image1);
         this.roll2 = logic.doRoll();
         setDice(roll2, image2);
-        int sum = roll1 + roll2;
 
         modelState.addRoll(new RollBE(roll1, roll2, LocalDateTime.now()));
-
-        TextView newText = new TextView(this);
 
 
     }
